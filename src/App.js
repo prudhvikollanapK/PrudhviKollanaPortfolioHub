@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Oval } from "react-loader-spinner";
@@ -14,11 +14,12 @@ import {
   FiBarChart2,
   FiCode,
   FiUser,
+  FiMonitor,
   FiList,
 } from "react-icons/fi";
 import { MdNetworkCheck   } from "react-icons/md";
 
-import { GiGamepad, GiBrain, GiPuzzle } from "react-icons/gi";
+import { GiGamepad, GiPuzzle } from "react-icons/gi";
 import signature from "./assets/images/signature.png";
 
 import documents from "./data.json";
@@ -57,6 +58,13 @@ const typeMeta = {
       "A fast, lightweight score tracker for quick games, challenges, and friendly matches.",
     icon: <FiList />,
     tags: ["Real-time", "Scorekeeping", "Game Tool"],
+  },
+  "score-dash-board": {
+    label: "Smart Dashboard",
+    description:
+    "A real-time game session dashboard to organize matches, generate AI teams or players, balance squads and track scores with live rankings and stats.",
+    icon: <FiMonitor />,
+    tags: ["Live Scores", "AI Teams", "AI Players", "Team Balancing", "Leaderboard", "Multi-mode"],
   },
 
   "spin-out": {
@@ -339,7 +347,7 @@ const App = () => {
         <a
           href="https://prudhvi-kollana-portfolio.vercel.app/"
           target="_blank"
-          rel="noopener"
+          rel="noopener noreferrer"
           class="pk-author"
         >
           <img src={signature} alt="Prudhvi Kollana" class="pk-author-img" />
