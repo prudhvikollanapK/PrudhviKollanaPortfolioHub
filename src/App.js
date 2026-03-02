@@ -352,7 +352,7 @@ const App = () => {
         <a
           href="https://prudhvi-kollana-portfolio.vercel.app/"
           target="_blank"
-          rel="noopener"
+          rel="noopener noreferrer"
           class="pk-author"
         >
           <img src={signature} alt="Prudhvi Kollana" class="pk-author-img" />
