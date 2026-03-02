@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Oval } from "react-loader-spinner";
@@ -19,7 +19,7 @@ import {
 } from "react-icons/fi";
 import { MdNetworkCheck   } from "react-icons/md";
 
-import { GiGamepad, GiBrain, GiPuzzle } from "react-icons/gi";
+import { GiGamepad, GiPuzzle } from "react-icons/gi";
 import signature from "./assets/images/signature.png";
 
 import documents from "./data.json";
