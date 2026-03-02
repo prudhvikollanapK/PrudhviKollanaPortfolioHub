@@ -14,7 +14,12 @@ import {
   FiBarChart2,
   FiCode,
   FiUser,
+  FiLayout,
+  FiMonitor,
   FiList,
+  FiTarget,
+  FiCommand ,
+  FiActivity
 } from "react-icons/fi";
 import { MdNetworkCheck   } from "react-icons/md";
 
@@ -23,6 +28,7 @@ import signature from "./assets/images/signature.png";
 
 import documents from "./data.json";
 import "./App.css";
+import { FaC } from "react-icons/fa6";
 
 Modal.setAppElement("#root");
 
@@ -57,6 +63,13 @@ const typeMeta = {
       "A fast, lightweight score tracker for quick games, challenges, and friendly matches.",
     icon: <FiList />,
     tags: ["Real-time", "Scorekeeping", "Game Tool"],
+  },
+  "score-dash-board": {
+    label: "Smart Dashboard",
+    description:
+    "A real-time game session dashboard to organize matches, generate AI teams or players, balance squads and track scores with live rankings and stats.",
+    icon: <FiMonitor />,
+    tags: ["Live Scores", "AI Teams", "AI Players", "Team Balancing", "Leaderboard", "Multi-mode"],
   },
 
   "spin-out": {
