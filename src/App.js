@@ -14,12 +14,8 @@ import {
   FiBarChart2,
   FiCode,
   FiUser,
-  FiLayout,
   FiMonitor,
   FiList,
-  FiTarget,
-  FiCommand ,
-  FiActivity
 } from "react-icons/fi";
 import { MdNetworkCheck   } from "react-icons/md";
 
@@ -28,7 +24,6 @@ import signature from "./assets/images/signature.png";
 
 import documents from "./data.json";
 import "./App.css";
-import { FaC } from "react-icons/fa6";
 
 Modal.setAppElement("#root");
 
