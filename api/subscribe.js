@@ -3,7 +3,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
-    return res.status(405).json({ error: "Method Not Allowed" });
+    return res.status(405).json({ error: "This endpoint only accepts POST requests." });
   }
 
   try {
@@ -11,7 +11,9 @@ module.exports = async function handler(req, res) {
     const email = (body?.email || "").trim().toLowerCase();
 
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Invalid email address" });
+      return res.status(400).json({
+        error: "Please enter a valid email address."
+      });
     }
 
     const apiKey = process.env.RESEND_API_KEY;
@@ -19,7 +21,9 @@ module.exports = async function handler(req, res) {
     const ownerEmail = process.env.OWNER_EMAIL;
 
     if (!apiKey) {
-      return res.status(500).json({ error: "RESEND_API_KEY is not configured" });
+      return res.status(500).json({
+        error: "Oops! Email delivery service is currently unavailable."
+      });
     }
 
     const now = new Date().toLocaleString("en-IN", {
@@ -64,7 +68,7 @@ module.exports = async function handler(req, res) {
     if (!userResponse.ok) {
       const errorBody = await userResponse.text();
       return res.status(502).json({
-        error: "Failed to send email",
+        error: "We couldn't send the confirmation email right now. Please try again shortly.",
         details: errorBody,
       });
     }
@@ -87,10 +91,13 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({
+      success: true,
+      message: "Subscription successful. Please check your email."
+    });
   } catch (error) {
     return res.status(500).json({
-      error: "Unexpected server error",
+      error: "Something went wrong on our side. Please try again later.",
       details: error?.message || "Unknown error",
     });
   }
