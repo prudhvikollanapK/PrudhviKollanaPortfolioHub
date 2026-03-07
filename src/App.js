@@ -932,7 +932,7 @@ const App = () => {
                 aria-label="Love"
                 title="Made with love by Prudhvi Kollana"
               >
-                Love
+                ❤
               </button>
               by
               <a
