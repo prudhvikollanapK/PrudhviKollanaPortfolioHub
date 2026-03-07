@@ -113,7 +113,7 @@ module.exports = async function handler(req, res) {
               </div>
               <div style="margin-top:20px;">
                 <a href="https://prudhvi-kollana-portfolio-hub.vercel.app/?source" style="display:inline-block;padding:10px 14px;border-radius:10px;background:linear-gradient(120deg,rgba(56,189,248,.35),rgba(34,197,94,.35));border:1px solid rgba(148,163,184,.45);color:#f8fafc;text-decoration:none;font-weight:600;font-size:13px;">
-                  Open Portfolio Hub
+                  Open Portfolio Hub via Source
                 </a>
               </div>
             </div>
