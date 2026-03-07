@@ -21,6 +21,14 @@ import {
   FiChevronUp,
   FiDownload,
   FiSliders,
+  FiMail,
+  FiSend,
+  FiStar,
+  FiZap,
+  FiLayers,
+  FiGithub,
+  FiLinkedin,
+  FiArrowUpRight,
 } from "react-icons/fi";
 import { MdNetworkCheck } from "react-icons/md";
 import { GiGamepad, GiPuzzle } from "react-icons/gi";
@@ -45,19 +53,25 @@ const iconMap = {
 };
 
 const toOrderValue = (card) => {
-  if (typeof card.order === "number") return card.order;
-  if (typeof card.position === "number") return card.position;
+  const rawOrder = card?.order;
+  const parsedOrder = Number(rawOrder);
+  if (Number.isFinite(parsedOrder)) return parsedOrder;
   return Number.MAX_SAFE_INTEGER;
 };
-
-const fallbackCards = [...fallbackCreations].sort(
-  (a, b) => toOrderValue(a) - toOrderValue(b)
-);
 
 const normalizeCard = (card) => ({
   ...card,
   order: toOrderValue(card),
 });
+
+const fallbackCards = (fallbackCreations || [])
+  .filter((card) => card.display === true && card.is_hub !== true)
+  .map(normalizeCard)
+  .sort(
+    (a, b) =>
+      toOrderValue(a) - toOrderValue(b) ||
+      (a.created_at || "").localeCompare(b.created_at || "")
+  );
 
 const cardsContainerVariants = {
   hidden: { opacity: 0 },
@@ -258,14 +272,18 @@ const App = () => {
   const [isInstallAvailable, setIsInstallAvailable] = useState(false);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [installHelpText, setInstallHelpText] = useState("");
+  const [subscriberEmail, setSubscriberEmail] = useState("");
+  const [subscribeStatus, setSubscribeStatus] = useState("idle");
+  const [subscribeMessage, setSubscribeMessage] = useState("");
+  const [isFooterImageModalOpen, setIsFooterImageModalOpen] = useState(false);
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const queryDebug = new URLSearchParams(window.location.search).get(
-      "pk_source"
-    );
+    const params = new URLSearchParams(window.location.search);
+    const hasSourceParam = params.has("source") || params.get("pk_source") === "1";
     const localDebug = window.localStorage.getItem("pk_source_debug");
-    setShowSourceDebug(queryDebug === "1" || localDebug === "1");
+    setShowSourceDebug(hasSourceParam || localDebug === "1");
   }, []);
 
   useEffect(() => {
@@ -339,7 +357,7 @@ const App = () => {
       const { data, error } = await supabase
         .from("creations")
         .select(
-          "id, type, title, url, position, label, description, icon, tags, image, created_at, display, is_hub, order"
+          "id, type, title, url, label, description, icon, tags, image, created_at, display, is_hub, order"
         )
         .eq("display", true)
         .eq("is_hub", false)
@@ -446,6 +464,45 @@ const App = () => {
     setIsInstallAvailable(false);
   };
 
+  const handleSubscribe = async (event) => {
+    event.preventDefault();
+
+    const email = subscriberEmail.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setSubscribeStatus("error");
+      setSubscribeMessage("Enter a valid email address.");
+      return;
+    }
+
+    try {
+      setSubscribeStatus("loading");
+      setSubscribeMessage("");
+
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Subscription failed");
+      }
+
+      setSubscribeStatus("success");
+      setSubscribeMessage("You are subscribed. Check your inbox.");
+      setSubscriberEmail("");
+    } catch (error) {
+      setSubscribeStatus("error");
+      setSubscribeMessage(
+        error.message || "Unable to subscribe now. Please try again."
+      );
+    }
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="page-root">
@@ -460,7 +517,7 @@ const App = () => {
           {showSourceDebug && (
             <div className={`source-pill ${dataSource}`}>
               <span className="source-pill-dot" />
-              {dataSource === "db" ? "Source: DB" : "Source: Fallback"}
+              {dataSource === "db" ? "Source: DB" : "Source: Data"}
             </div>
           )}
 
@@ -740,29 +797,190 @@ const App = () => {
           )}
         </AnimatePresence>
 
-        <p className="pk-credit">
-          Made with
-          <button
-            className="pk-heart"
-            aria-label="Love"
-            title="Made with love by Prudhvi Kollana"
-          >
-            ❤
-          </button>
-          by
-          <a
-            href="https://prudhvi-kollana-portfolio.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="pk-author"
-          >
-            <img src={signature} alt="Prudhvi Kollana" className="pk-author-img" />
-          </a>
-          <span className="pk-note">
-            <strong>- Portfolio Hub</strong>
-          </span>
-        </p>
+        <footer className="premium-footer">
+          <div className="footer-bg-glow" />
+          <div className="footer-grid">
+            <section className="footer-left">
+              <div className="footer-brand-row">
+                <button
+                  type="button"
+                  className="footer-brand-image-btn"
+                  onClick={() => setIsFooterImageModalOpen(true)}
+                  aria-label="Open Portfolio Hub brand image"
+                >
+                  <img
+                    src="/favicon.png"
+                    alt="Portfolio Hub"
+                    className="footer-brand-image"
+                  />
+                </button>
+                <div className="footer-brand-content">
+                  {/* <p className="footer-eyebrow">Project</p> */}
+                  <h3 className="footer-title">Portfolio Hub</h3>
+                  <p className="footer-description">
+                    A unified showcase of my creations, experiments, tools, and games
+                    with live previews, modern UX, and production-ready quality.
+                  </p>
+                </div>
+              </div>
+              <div className="footer-feature-row">
+                <span className="footer-feature-pill">
+                  <FiStar />
+                  Curated Builds
+                </span>
+                <span className="footer-feature-pill">
+                  <FiZap />
+                  Real-time Updates
+                </span>
+                <span className="footer-feature-pill">
+                  <FiLayers />
+                  Multi-product Hub
+                </span>
+              </div>
+            </section>
+
+            <section className="footer-middle">
+              <h4 className="footer-subtitle">Explore</h4>
+              <div className="footer-links-grid">
+                <a
+                  href="https://prudhvi-kollana-portfolio.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-link-card"
+                >
+                  Main Portfolio <FiArrowUpRight />
+                </a>
+                <a
+                  href="https://network-status-hub.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-link-card"
+                >
+                  Live Status <FiGlobe />
+                </a>
+                <a
+                  href="https://github.com/prudhvikollanapK"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-link-card"
+                >
+                  GitHub <FiGithub />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/prudhvikollanapk/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-link-card"
+                >
+                  LinkedIn <FiLinkedin />
+                </a>
+              </div>
+            </section>
+
+            <section className="footer-right">
+              <h4 className="footer-subtitle">Receive Updates</h4>
+              {/* <p className="footer-form-copy">
+                Get premium release notes whenever I launch a new creation.
+              </p> */}
+              
+              <p className="footer-innovative-point">
+                Instantly access clear, impact-focused release notes every time a new creation goes live, so you know exactly what’s new and why it matters.
+              </p>
+              <form className="footer-form" onSubmit={handleSubscribe}>
+                <div className="footer-input-wrap">
+                  <FiMail className="footer-input-icon" />
+                  <input
+                    type="email"
+                    value={subscriberEmail}
+                    onChange={(event) => setSubscriberEmail(event.target.value)}
+                    placeholder="Enter your email"
+                    className="footer-input"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className={`footer-submit-btn ${
+                    subscribeStatus === "loading" ? "loading" : ""
+                  }`}
+                  disabled={subscribeStatus === "loading"}
+                >
+                  <FiSend />
+                  {subscribeStatus === "loading" ? "Sending..." : "Subscribe"}
+                </button>
+              </form>
+              {subscribeMessage && (
+                <p
+                  className={`footer-feedback ${
+                    subscribeStatus === "success" ? "success" : "error"
+                  }`}
+                >
+                  {subscribeMessage}
+                </p>
+              )}
+            </section>
+          </div>
+
+          <div className="footer-bottom-row">
+            <p className="footer-copyright">
+              Copyright {currentYear} Prudhvi Kollana. Portfolio Hub.
+            </p>
+            <p className="pk-credit footer-signature">
+              Made with
+              <button
+                className="pk-heart"
+                aria-label="Love"
+                title="Made with love by Prudhvi Kollana"
+              >
+                Love
+              </button>
+              by
+              <a
+                href="https://prudhvi-kollana-portfolio.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pk-author"
+              >
+                <img src={signature} alt="Prudhvi Kollana" className="pk-author-img" />
+              </a>
+              <span className="pk-note">
+                <strong>- Portfolio Hub</strong>
+              </span>
+            </p>
+          </div>
+        </footer>
       </div>
+      <AnimatePresence>
+        {isFooterImageModalOpen && (
+          <Modal
+            isOpen={isFooterImageModalOpen}
+            onRequestClose={() => setIsFooterImageModalOpen(false)}
+            className="footer-brand-modal"
+            overlayClassName="image-modal-overlay"
+            closeTimeoutMS={200}
+          >
+            <motion.div
+              className="footer-brand-modal-inner"
+              initial={{ opacity: 0, scale: 0.94, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <button
+                className="modal-close-btn"
+                onClick={() => setIsFooterImageModalOpen(false)}
+              >
+                X
+              </button>
+              <img
+                src="/favicon.png"
+                alt="Portfolio Hub brand"
+                className="footer-brand-modal-image"
+              />
+            </motion.div>
+          </Modal>
+        )}
+      </AnimatePresence>
     </DndProvider>
   );
 };
